@@ -48,7 +48,7 @@ func (a *AesCrypt) DecryptBlock(src []byte) (data []byte, err error) {
 }
 func (a *AesCrypt) Encrypt(data []byte) ([]byte, error) {
 
-	content := a.PKCS5Padding(data, a.Blocker.BlockSize())
+	content := a.PKCS5Padding(data)
 	cipherBytes := make([]byte, len(content))
 	a.Encrypter.CryptBlocks(cipherBytes, content)
 	return cipherBytes, nil
@@ -61,7 +61,13 @@ func (a *AesCrypt) Decrypt(src []byte) (data []byte, err error) {
 	return a.PKCS5UnPadding(decrypted), nil
 }
 
-func (a *AesCrypt) PKCS5Padding(cipherText []byte, blockSize int) []byte {
+func (a *AesCrypt) PKCS5Padding(cipherText []byte) []byte {
+	blockSize := a.Blocker.BlockSize()
+	padding := blockSize - len(cipherText)%blockSize
+	padText := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(cipherText, padText...)
+}
+func (a *AesCrypt) PKCS5PaddingWithBlockSize(cipherText []byte, blockSize int) []byte {
 	padding := blockSize - len(cipherText)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(cipherText, padText...)

@@ -13,8 +13,7 @@ func TestTar(t *testing.T) {
 	Tar(".git", "a.tar", false)
 }
 
-/*
-func TestTar(t *testing.T) {
+func TestTar1(t *testing.T) {
 	filename := "a.tar"
 	f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -44,4 +43,5 @@ func TestTar(t *testing.T) {
 		F.Close()
 	}
 }
-*/
+
+/**/
