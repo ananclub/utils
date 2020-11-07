@@ -91,7 +91,7 @@ func HttpDo(remoteUrl string, method string, tr *http.Transport, j http.CookieJa
 			if n == 0 {
 				break
 			}
-			body = append(body, buf...)
+			body = append(body, buf[:n]...)
 		}
 	default:
 		body, err = ioutil.ReadAll(response.Body)
