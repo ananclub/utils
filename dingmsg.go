@@ -16,13 +16,16 @@ const (
 )
 
 const (
-	TYPE_TEXT       = "text"       //text
-	TYPE_MARKDOWN   = "markdown"   //markdown
-	TYPE_LINK       = "link"       //link类型
-	TYPE_FEEDCARD   = "feedCard"   //FeedCard
-	TYPE_ACTIONCARD = "actionCard" //整体跳转&独立跳转
+	DINGMSG_TYPE_TEXT       = "text"       //text
+	DINGMSG_TYPE_MARKDOWN   = "markdown"   //markdown
+	DINGMSG_TYPE_LINK       = "link"       //link类型
+	DINGMSG_TYPE_FEEDCARD   = "feedCard"   //FeedCard
+	DINGMSG_TYPE_ACTIONCARD = "actionCard" //整体跳转&独立跳转
 )
 
+type DingMSGText struct {
+	Content string `json:"content"`
+}
 type DingMSGMarkdown struct {
 	Title string `json:"title"`
 	Text  string `json:"text"`
@@ -61,7 +64,7 @@ type DingMSGAt struct {
 }
 type DingMSG struct {
 	MsgType    string            `json:"msgtype"`
-	Text       string            `json:"text"`
+	Text       DingMSGText       `json:"text"`
 	Markdown   DingMSGMarkdown   `json:"markdown"`
 	ActionCard DingMSGActionCard `json:"actionCard"`
 	FeedCard   DingMSGFeedCard   `json:"feedCard"`
@@ -85,10 +88,10 @@ func SendDingMsg(token string, sec string, msg *DingMSG) (result string, err err
 
 	if len(msg.At.AtMobiles) > 0 {
 		for _, p := range msg.At.AtMobiles {
-			if msg.MsgType == TYPE_MARKDOWN {
+			if msg.MsgType == DINGMSG_TYPE_MARKDOWN {
 				msg.Markdown.Text += "@" + p + " "
-			} else if msg.MsgType == TYPE_TEXT {
-				msg.Text += "@" + p + " "
+			} else if msg.MsgType == DINGMSG_TYPE_TEXT {
+				msg.Text.Content += "@" + p + " "
 			}
 		}
 	}
