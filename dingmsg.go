@@ -106,3 +106,14 @@ func SendDingMsg(token string, sec string, msg *DingMSG) (result string, err err
 	}
 	return
 }
+func SendDingMsgStr(token string, sec string, msg []byte) (result string, err error) {
+
+	if v, err := genSign(token, sec); err != nil {
+		return "", err
+	} else if _, b, err := HttpDo(DINGAPIURL, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, msg); err != nil {
+		return "", err
+	} else {
+		result = string(b)
+	}
+	return
+}
