@@ -72,8 +72,13 @@ func Uint64ToBytes(n uint64) []byte {
 func ArrayRemove(s []string, i int) []string {
 	return append(s[:i], s[i+1:]...)
 }
-
-func GetCurrentTimeStr(format, zone string) (s string, err error) {
+func GetCurrentTimeStr() (s string) {
+	zone = "Asia/Shanghai"
+	format = "2006-01-02 15:04:05"
+	loc, err := time.LoadLocation(zone)
+	return time.Now().In(loc).Format(format)
+}
+func GetCurrentTimeStrWithZone(format, zone string) (s string, err error) {
 	if zone == "" {
 		zone = "Asia/Shanghai"
 	}
