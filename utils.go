@@ -9,6 +9,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -325,3 +326,6 @@ func UTF8ToGBK(s []byte) ([]byte, error) {
 	}
 	return d, nil
 }
+
+var UrlEncode func(string) string = url.QueryEscape
+var UrlDecode func(string) (string, error) = url.QueryUnescape
