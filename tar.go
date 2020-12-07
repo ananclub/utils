@@ -11,6 +11,11 @@ import (
 	"strings"
 )
 
+type TarFile struct {
+	gw *gzip.Writer
+	tw *tar.Writer
+}
+
 func NewGzipFile(dest string, deleteIfExist bool) (gw *gzip.Writer, err error) {
 	d, err := os.Create(dest)
 	if err == os.ErrExist {
@@ -55,7 +60,7 @@ func Compress(files []*os.File, dest string) error {
 	tw := tar.NewWriter(gw)
 	defer tw.Close()
 	for _, file := range files {
-		err := TarAddFile(file, "", tw)
+		err := TarAddFile(tw, file, "")
 		if err != nil {
 			return err
 		}
@@ -63,7 +68,7 @@ func Compress(files []*os.File, dest string) error {
 	return nil
 }
 
-func TarAddFile(file *os.File, prefix string, tw *tar.Writer) error {
+func TarAddFile(tw *tar.Writer, file *os.File, prefix string) error {
 	info, err := file.Stat()
 	if err != nil {
 		return err
@@ -79,7 +84,7 @@ func TarAddFile(file *os.File, prefix string, tw *tar.Writer) error {
 			if err != nil {
 				return err
 			}
-			err = TarAddFile(f, prefix, tw)
+			err = TarAddFile(tw, f, prefix)
 			if err != nil {
 				return err
 			}
@@ -168,7 +173,7 @@ func Tar(filesource, filetarget string, deleteIfExist bool) (err error) {
 		fmt.Println(err)
 		return err
 	}
-	TarAddFile(f, "", tw)
+	TarAddFile(tw, f, "")
 	tw.Flush()
 	return nil
 }
