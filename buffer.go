@@ -7,10 +7,28 @@ import (
 )
 
 type Buffer struct {
-	b bytes.Buffer
-	m sync.Mutex
+	b     bytes.Buffer
+	m     sync.Mutex
+	rCond *sync.Cond
+	wCond *sync.Cond
 }
 
+func (b *Buffer) Init() {
+	b.rCond = sync.NewCond(new(sync.Mutex))
+	b.wCond = sync.NewCond(new(sync.Mutex))
+}
+func (b *Buffer) RWait() {
+	b.rCond.Wait()
+}
+func (b *Buffer) RSignal() {
+	b.rCond.Signal()
+}
+func (b *Buffer) WWait() {
+	b.wCond.Wait()
+}
+func (b *Buffer) WSignal() {
+	b.wCond.Signal()
+}
 func (b *Buffer) Read(p []byte) (n int, err error) {
 	b.m.Lock()
 	defer b.m.Unlock()
