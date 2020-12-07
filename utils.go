@@ -18,9 +18,13 @@ import (
 
 	"github.com/goinggo/mapstructure"
 	"github.com/google/uuid"
+	"github.com/json-iterator/go"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
+
+var Json = jsoniter.ConfigCompatibleWithStandardLibrary
+var json = Json
 
 func MapToStruct(v interface{}) (err error) {
 	mapInstance := make(map[string]interface{})

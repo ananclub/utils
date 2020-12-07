@@ -4,12 +4,7 @@ import (
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/json-iterator/go"
 )
-
-var Json = jsoniter.ConfigCompatibleWithStandardLibrary
-var json = Json
 
 const (
 	DINGAPIURL = "https://oapi.dingtalk.com/robot/send"
