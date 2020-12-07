@@ -18,13 +18,17 @@ func (b *Buffer) Init() {
 	b.wCond = sync.NewCond(new(sync.Mutex))
 }
 func (b *Buffer) RWait() {
+	b.rCond.L.Lock()
 	b.rCond.Wait()
+	b.rCond.L.Unlock()
 }
 func (b *Buffer) RSignal() {
 	b.rCond.Signal()
 }
 func (b *Buffer) WWait() {
+	b.wCond.L.Lock()
 	b.wCond.Wait()
+	b.wCond.L.Unlock()
 }
 func (b *Buffer) WSignal() {
 	b.wCond.Signal()
