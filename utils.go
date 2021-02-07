@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -333,3 +334,116 @@ func UTF8ToGBK(s []byte) ([]byte, error) {
 
 var UrlEncode func(string) string = url.QueryEscape
 var UrlDecode func(string) (string, error) = url.QueryUnescape
+
+func CheckParamStrict(params map[string]interface{}, key string, in interface{}, canNull bool) (isnull bool, err error) {
+	param, ok := params[key]
+	if !ok {
+		isnull = true
+		if !canNull {
+			err = fmt.Errorf("param %s is null", key)
+		}
+		return
+	}
+	tp := reflect.TypeOf(param)
+	p := reflect.ValueOf(in)
+	if p.Kind() != reflect.Ptr {
+		err = fmt.Errorf("dest param must be ptr")
+		return
+	}
+
+	v := p.Elem()
+	t := v.Type()
+
+	if tp != t {
+		err = fmt.Errorf("want type %s but %T", t.Name(), param)
+		return
+	}
+	*v.Addr().Interface().(*interface{}) = param
+	return
+}
+
+func CheckParam(params map[string]interface{}, key string, in interface{}, canNull bool) (isNull bool, err error) {
+	param, ok := params[key]
+	if !ok {
+		isNull = true
+		if !canNull {
+			err = fmt.Errorf("param %s is null", key)
+		}
+		return
+	}
+	tp := reflect.TypeOf(param)
+	ptr := reflect.ValueOf(in)
+	if ptr.Kind() != reflect.Ptr {
+		err = fmt.Errorf("dest param must be ptr type,please contact coder to fix it")
+		return
+	}
+	v := ptr.Elem()
+	t := v.Type()
+
+	switch tp.Kind() {
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		switch t.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			v.SetInt(param.(int64))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			v.SetUint(uint64(param.(int64)))
+		case reflect.Float32, reflect.Float64:
+			v.SetFloat(float64(param.(int64)))
+		case reflect.String:
+			v.SetString(strconv.FormatInt(param.(int64), 10))
+		}
+		return
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		switch t.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			v.SetInt(int64(param.(uint64)))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			v.SetUint(param.(uint64))
+		case reflect.Float32, reflect.Float64:
+			v.SetFloat(float64(param.(uint64)))
+		case reflect.String:
+			v.SetString(strconv.FormatUint(param.(uint64), 10))
+		}
+		return
+	case reflect.Float32, reflect.Float64:
+		switch t.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			v.SetInt(int64(param.(float64)))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			v.SetUint(uint64(param.(float64)))
+		case reflect.Float32, reflect.Float64:
+			v.SetFloat(param.(float64))
+		case reflect.String:
+			v.SetString(strconv.FormatFloat(param.(float64), 'f', -1, 64))
+		}
+		return
+	case reflect.String:
+		switch t.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			var i int64
+			i, err = strconv.ParseInt(param.(string), 10, 64)
+			if err == nil {
+				v.SetInt(i)
+			}
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			var i uint64
+			i, err = strconv.ParseUint(param.(string), 10, 64)
+			if err == nil {
+				v.SetUint(i)
+			}
+		case reflect.Float32, reflect.Float64:
+			var f float64
+			f, err = strconv.ParseFloat(param.(string), 64)
+			if err == nil {
+				v.SetFloat(f)
+			}
+		case reflect.String:
+			v.SetString(param.(string))
+
+		}
+		return
+	}
+	err = fmt.Errorf("dest param want type %s but %T", t.Name(), param)
+	return
+}
