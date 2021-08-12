@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -446,4 +447,9 @@ func CheckParam(params map[string]interface{}, key string, in interface{}, canNu
 	}
 	err = fmt.Errorf("dest param want type %s but %T", t.Name(), param)
 	return
+}
+func VerifyEmailFormat(email string) bool {
+	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` //匹配电子邮箱
+	reg := regexp.MustCompile(pattern)
+	return reg.MatchString(email)
 }
