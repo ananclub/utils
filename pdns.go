@@ -13,7 +13,7 @@ func (pdns *PDNS) Add(hostname string, ip string, ttl uint) (err error) {
 
 	_, err = pdns.pdnsApi("PATCH", `
 		{"rrsets": [
-		 	{"name": "`+hostname+`.cluster.melot.cn.",
+		 	{"name": "`+hostname+`.",
 			 "type": "A","ttl": `+strconv.Itoa(int(ttl))+`,
 			 "changetype": "REPLACE",
 			 "records": [ 
@@ -28,7 +28,7 @@ func (pdns *PDNS) Add(hostname string, ip string, ttl uint) (err error) {
 func (pdns *PDNS) Del(hostname string) (err error) {
 
 	_, err = pdns.pdnsApi("PATCH", `{"rrsets": [
-			 {"name": "`+hostname+`.cluster.melot.cn.",
+			 {"name": "`+hostname+`.",
 				"type": "A",
 				"changetype": "DELETE"
 			 }
