@@ -14,7 +14,7 @@ const (
 	PATHZones = PATHAPI + "/zones"
 )
 
-func (pdns *PDNS) Add(zone, hostname, ip string, ttl uint) (err error) {
+func (pdns *PDNS) Add(hostname, zone, ip string, ttl uint) (err error) {
 
 	_, err = pdns.pdnsApi(PATHZones+"/"+zone, "PATCH", `
 		{"rrsets": [
@@ -30,7 +30,7 @@ func (pdns *PDNS) Add(zone, hostname, ip string, ttl uint) (err error) {
 	return
 
 }
-func (pdns *PDNS) Del(zone, hostname string) (err error) {
+func (pdns *PDNS) Del(hostname, zone string) (err error) {
 
 	_, err = pdns.pdnsApi(PATHZones+"/"+zone, "PATCH", `{"rrsets": [
 			 {"name": "`+hostname+"."+zone+`.",
