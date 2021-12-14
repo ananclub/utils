@@ -10,13 +10,16 @@ type PDNS struct {
 }
 
 const (
-	PATHAPI   = "/api/v1/servers/localhost"
-	PATHZones = PATHAPI + "/zones"
+	PATHBASE            = "/api/v1"
+	PATHServers         = PATHBASE + "/servers"
+	PATHServerLocalhost = PATHServers + "/localhost"
+	PATHZones           = "/zones"
+	PATHLocalZones      = PATHServerLocalhost + PATHZones
 )
 
 func (pdns *PDNS) Add(hostname, zone, ip string, ttl uint) (err error) {
 
-	_, err = pdns.pdnsApi(PATHZones+"/"+zone, "PATCH", `
+	_, err = pdns.pdnsApi(PATHLocalZones+"/"+zone, "PATCH", `
 		{"rrsets": [
 		 	{"name": "`+hostname+"."+zone+`.",
 			 "type": "A","ttl": `+strconv.Itoa(int(ttl))+`,
@@ -32,7 +35,7 @@ func (pdns *PDNS) Add(hostname, zone, ip string, ttl uint) (err error) {
 }
 func (pdns *PDNS) Del(hostname, zone string) (err error) {
 
-	_, err = pdns.pdnsApi(PATHZones+"/"+zone, "PATCH", `{"rrsets": [
+	_, err = pdns.pdnsApi(PATHLocalZones+"/"+zone, "PATCH", `{"rrsets": [
 			 {"name": "`+hostname+"."+zone+`.",
 				"type": "A",
 				"changetype": "DELETE"
@@ -44,15 +47,18 @@ func (pdns *PDNS) Del(hostname, zone string) (err error) {
 }
 func (pdns *PDNS) GetAllRR(zone string) (rsp []byte, err error) {
 
-	rsp, err = pdns.pdnsApi(PATHZones+"/"+zone, "GET", "")
+	rsp, err = pdns.pdnsApi(PATHLocalZones+"/"+zone, "GET", "")
 	return
-
 }
-func (pdns *PDNS) GetAllZones() (rsp []byte, err error) {
+func (pdns *PDNS) ListLocalZones() (rsp []byte, err error) {
 
-	rsp, err = pdns.pdnsApi(PATHZones, "GET", "")
+	rsp, err = pdns.pdnsApi(PATHLocalZones, "GET", "")
 	return
+}
+func (pdns *PDNS) ListServers() (rsp []byte, err error) {
 
+	rsp, err = pdns.pdnsApi(PATHServers, "GET", "")
+	return
 }
 func (pdns *PDNS) pdnsApi(path, method, data string) (rsp []byte, err error) {
 
