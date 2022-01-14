@@ -57,7 +57,7 @@ func (pdns *PDNS) Add(zone, hostname, typ, content string, ttl uint) (err error)
 		Name:       hostname + "." + zone + ".",
 		Type:       typ,
 		ChangeType: "REPLACE",
-		TTL:        uint(ttl),
+		TTL:        ttl,
 		Records:    []Record{Record{Content: content}},
 	}
 	rrs := map[string]interface{}{"rrsets": []RRSet{rr}}
