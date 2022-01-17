@@ -9,14 +9,15 @@ type Comment struct {
 	Account    string `json:"account"`     //– Name of an account that added the comment
 	ModifiedAt int    `json:"modified_at"` //– Timestamp of the last change to the comment
 }
-type Record struct {
+type RREntry struct {
 	Content  string `json:"content"`
 	Disabled bool   `json:"disabled"`
+	SetPtr   bool   `json:"set-ptr"`
 }
 type RRSet struct {
 	Comments   []Comment `json:"comments"`
 	Name       string    `json:"name"`
-	Records    []Record  `json:"records"`
+	Records    []RREntry `json:"records"`
 	TTL        uint      `json:"ttl"`
 	Type       string    `json:"type"`
 	ChangeType string    `json:"changetype"`
@@ -43,6 +44,27 @@ type Zone struct {
 	RRSets           []RRSet  `json:"rrsets"`
 }
 
+/*
+{
+  "type": "Server",
+  "id": "localhost",
+  "url": "/api/v1/servers/localhost",
+  "daemon_type": "recursor",
+  "version": "4.1.0",
+  "config_url": "/api/v1/servers/localhost/config{/config_setting}",
+  "zones_url": "/api/v1/servers/localhost/zones{/zone}",
+}
+*/
+type Server struct {
+	Type       string `json:"type"`
+	Id         string `json:"id"`
+	Url        string `json:"url"`
+	DaemonType string `json:"daemon_type"`
+	Version    string `json:"version"`
+	ConfigUrl  string `json:"config_url"`
+	ZoneUrl    string `json:"zones_url"`
+}
+
 const (
 	PATHBASE            = "/api/v1"
 	PATHServers         = PATHBASE + "/servers"
@@ -58,7 +80,7 @@ func (pdns *PDNS) Add(zone, hostname, typ, content string, ttl uint) (err error)
 		Type:       typ,
 		ChangeType: "REPLACE",
 		TTL:        ttl,
-		Records:    []Record{Record{Content: content}},
+		Records:    []RREntry{RREntry{Content: content}},
 	}
 	rrs := map[string]interface{}{"rrsets": []RRSet{rr}}
 	b, err := json.Marshal(rrs)
