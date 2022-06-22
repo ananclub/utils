@@ -33,6 +33,20 @@ func (b *Buffer) WWait() {
 func (b *Buffer) WSignal() {
 	b.wCond.Signal()
 }
+func (b *Buffer) WaitWrite() {
+	b.m.Lock()
+	defer b.m.Unlock()
+	if b.b.Len() == b.b.Cap() {
+		b.WWait()
+	}
+}
+func (b *Buffer) WaitRead() {
+	b.m.Lock()
+	defer b.m.Unlock()
+	if b.b.Len() == 0 {
+		b.RWait()
+	}
+}
 func (b *Buffer) Read(p []byte) (n int, err error) {
 	b.m.Lock()
 	defer b.m.Unlock()

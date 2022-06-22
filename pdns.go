@@ -44,6 +44,10 @@ type Zone struct {
 	RRSets           []RRSet  `json:"rrsets"`
 }
 
+type RRSets struct {
+	RRSets []RRSet `json:"rrsets"`
+}
+
 /*
 {
   "type": "Server",
@@ -75,41 +79,41 @@ const (
 
 func (pdns *PDNS) Add(zone, hostname, typ, content string, ttl uint) (err error) {
 
-	rr := RRSet{
-		Name:       hostname + "." + zone + ".",
-		Type:       typ,
-		ChangeType: "REPLACE",
-		TTL:        ttl,
-		Records:    []RREntry{RREntry{Content: content}},
-	}
-	rrs := map[string]interface{}{"rrsets": []RRSet{rr}}
+	rrs := RRSets{RRSets: []RRSet{
+		RRSet{
+			Name:       hostname + "." + zone + ".",
+			Type:       typ,
+			ChangeType: "REPLACE",
+			TTL:        ttl,
+			Records:    []RREntry{RREntry{Content: content}},
+		}}}
 	b, err := json.Marshal(rrs)
 	if err != nil {
 		return
 	}
-	_, err = pdns.pdnsApi(PATHLocalZones+"/"+zone, "PATCH", string(b))
+	_, err = pdns.Api(PATHLocalZones+"/"+zone, "PATCH", string(b))
 	return
 
 }
 func (pdns *PDNS) Del(zone, hostname, typ string) (err error) {
-	rr := RRSet{
-		Name:       hostname + "." + zone + ".",
-		Type:       typ,
-		ChangeType: "DELETE",
-	}
+	rrs := RRSets{RRSets: []RRSet{
+		RRSet{
+			Name:       hostname + "." + zone + ".",
+			Type:       typ,
+			ChangeType: "DELETE",
+		}}}
 
-	rrs := map[string]interface{}{"rrsets": []RRSet{rr}}
 	b, err := json.Marshal(rrs)
 	if err != nil {
 		return
 	}
-	_, err = pdns.pdnsApi(PATHLocalZones+"/"+zone, "PATCH", string(b))
+	_, err = pdns.Api(PATHLocalZones+"/"+zone, "PATCH", string(b))
 	return
 
 }
 func (pdns *PDNS) GetAllRR(zone string) (rrsets []RRSet, err error) {
 
-	rsp, err := pdns.pdnsApi(PATHLocalZones+"/"+zone, "GET", "")
+	rsp, err := pdns.Api(PATHLocalZones+"/"+zone, "GET", "")
 	if err != nil {
 		return
 	}
@@ -124,15 +128,15 @@ func (pdns *PDNS) GetAllRR(zone string) (rrsets []RRSet, err error) {
 }
 func (pdns *PDNS) ListLocalZones() (rsp []byte, err error) {
 
-	rsp, err = pdns.pdnsApi(PATHLocalZones, "GET", "")
+	rsp, err = pdns.Api(PATHLocalZones, "GET", "")
 	return
 }
 func (pdns *PDNS) ListServers() (rsp []byte, err error) {
 
-	rsp, err = pdns.pdnsApi(PATHServers, "GET", "")
+	rsp, err = pdns.Api(PATHServers, "GET", "")
 	return
 }
-func (pdns *PDNS) pdnsApi(path, method, data string) (rsp []byte, err error) {
+func (pdns *PDNS) Api(path, method, data string) (rsp []byte, err error) {
 
 	h := make(map[string]string)
 	h["X-API-Key"] = pdns.APIKey
