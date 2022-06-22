@@ -7,10 +7,6 @@ import (
 )
 
 const (
-	DINGAPIURL = "https://oapi.dingtalk.com/robot/send"
-)
-
-const (
 	DINGMSG_TYPE_TEXT       = "text"       //text
 	DINGMSG_TYPE_MARKDOWN   = "markdown"   //markdown
 	DINGMSG_TYPE_LINK       = "link"       //link类型
@@ -66,7 +62,7 @@ type DingMSG struct {
 	At         DingMSGAt         `json:"at"`
 }
 
-func genSign(token string, sec string) (v url.Values, err error) {
+func genSign(token, sec string) (v url.Values, err error) {
 	timestamp := strconv.Itoa(int(time.Now().Unix()) * 1000)
 	plainText := timestamp + "\n" + sec
 	sign, err := HmacSha256(plainText, sec)
@@ -79,7 +75,7 @@ func genSign(token string, sec string) (v url.Values, err error) {
 	v.Add("sign", sign)
 	return
 }
-func SendDingMsg(token string, sec string, msg *DingMSG) (result string, err error) {
+func SendDingMsg(api, token, sec string, msg *DingMSG) (result string, err error) {
 
 	if len(msg.At.AtMobiles) > 0 {
 		for _, p := range msg.At.AtMobiles {
@@ -94,7 +90,7 @@ func SendDingMsg(token string, sec string, msg *DingMSG) (result string, err err
 		return "", err
 	} else if content, err := json.Marshal(msg); err != nil {
 		return "", err
-	} else if _, b, err := HttpDo(DINGAPIURL, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, content); err != nil {
+	} else if _, b, err := HttpDo(api, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, content); err != nil {
 		return "", err
 	} else {
 		result = string(b)
@@ -102,7 +98,7 @@ func SendDingMsg(token string, sec string, msg *DingMSG) (result string, err err
 	return
 }
 
-func SendDingMsgText(token string, sec string, text string) (result string, err error) {
+func SendDingMsgText(api, token, sec, text string) (result string, err error) {
 
 	msg := DingMSG{MsgType: DINGMSG_TYPE_TEXT,
 		Text: DingMSGText{Content: text}}
@@ -110,18 +106,18 @@ func SendDingMsgText(token string, sec string, text string) (result string, err 
 		return "", err
 	} else if content, err := json.Marshal(msg); err != nil {
 		return "", err
-	} else if _, b, err := HttpDo(DINGAPIURL, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, content); err != nil {
+	} else if _, b, err := HttpDo(api, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, content); err != nil {
 		return "", err
 	} else {
 		result = string(b)
 	}
 	return
 }
-func SendDingMsgStr(token string, sec string, msg []byte) (result string, err error) {
+func SendDingMsgStr(api, token, sec string, msg []byte) (result string, err error) {
 
 	if v, err := genSign(token, sec); err != nil {
 		return "", err
-	} else if _, b, err := HttpDo(DINGAPIURL, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, msg); err != nil {
+	} else if _, b, err := HttpDo(api, "POST", nil, nil, map[string]string{"Content-Type": "application/json; charset=utf-8"}, v, msg); err != nil {
 		return "", err
 	} else {
 		result = string(b)
