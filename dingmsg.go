@@ -98,10 +98,19 @@ func SendDingMsg(api, token, sec string, msg *DingMSG) (result string, err error
 	return
 }
 
-func SendDingMsgText(api, token, sec, text string) (result string, err error) {
+func SendDingMsgText(api, token, sec, text string, ats []string) (result string, err error) {
 
-	msg := DingMSG{MsgType: DINGMSG_TYPE_TEXT,
-		Text: DingMSGText{Content: text}}
+	msg := DingMSG{
+		MsgType: DINGMSG_TYPE_TEXT,
+		Text:    DingMSGText{Content: text},
+		At:      DingMSGAt{AtMobiles: ats},
+	}
+	if len(msg.At.AtMobiles) > 0 {
+		for _, p := range msg.At.AtMobiles {
+			msg.Text.Content += "@" + p + " "
+
+		}
+	}
 	if v, err := genSign(token, sec); err != nil {
 		return "", err
 	} else if content, err := json.Marshal(msg); err != nil {
