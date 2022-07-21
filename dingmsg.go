@@ -26,7 +26,7 @@ type DingMSGMarkdown struct {
 
 type DingMSGActionCardBtn struct {
 	Title     string `json:"title"`
-	ActionUrl string `json:"actionUrl"` //点击按钮触发的URL
+	ActionUrl string `json:"actionURL"` //点击按钮触发的URL
 }
 type DingMSGLink struct {
 	Title      string `json:"title"`      //消息标题
@@ -114,6 +114,8 @@ func NewDingTalkRobot(token, secret, apiurl string) (r *DingTalkRobot, err error
 				}
 				r.LastActive = time.Now().Unix()
 				time.Sleep(3 * time.Second)
+			} else {
+				break
 			}
 		}
 	}(r)
@@ -234,7 +236,7 @@ func (r *DingTalkRobot) SendFeedcard(title []string, messageurl []string, picurl
 			var link DingMSGFeedCardLink
 			link.Title = title[i]
 			link.MessageURL = messageurl[i]
-			link.PicURL = messageurl[i]
+			link.PicURL = picurl[i]
 			msg.FeedCard.Links = append(msg.FeedCard.Links, link)
 		}
 	} else {
@@ -255,7 +257,7 @@ func (r *DingTalkRobot) SendActioncard(title string, text string, titlechild []s
 		btnOrientation:0：按钮竖直排列  1：按钮横向排列 默认为0
 	*/
 
-	if btnorientation == "" {
+	if btnorientation != "1" {
 		btnorientation = "0"
 	}
 	msg := DingMSG{
@@ -291,7 +293,7 @@ func (r *DingTalkRobot) SendWholeActioncard(title string, text string, singtitle
 		singleURL:点击singleTitle按钮触发的URL。
 		btnOrientation:0：按钮竖直排列  1：按钮横向排列 默认为0
 	*/
-	if btnorientation == "" {
+	if btnorientation != "1" {
 		btnorientation = "0"
 	}
 	msg := DingMSG{
