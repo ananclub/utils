@@ -71,6 +71,7 @@ type DingTalkRobot struct {
 	Url         string
 	Vals        url.Values
 	ChanSend    chan DingMSG
+	LastActive  int64
 }
 
 func NewDingTalkRobot(token, secret, apiurl string) (r *DingTalkRobot, err error) {
@@ -95,6 +96,7 @@ func NewDingTalkRobot(token, secret, apiurl string) (r *DingTalkRobot, err error
 		Secret:      secret,
 		Url:         apiurl,
 		Vals:        vals,
+		LastActive:  time.Now().Unix(),
 	}
 
 	r.ChanSend = make(chan DingMSG, 1024)
@@ -110,6 +112,7 @@ func NewDingTalkRobot(token, secret, apiurl string) (r *DingTalkRobot, err error
 				} else {
 					log.Println("HttpDo:", string(b))
 				}
+				r.LastActive = time.Now().Unix()
 				time.Sleep(3 * time.Second)
 			}
 		}
@@ -138,15 +141,15 @@ func (r *DingTalkRobot) SendText(content string, atmobiles []string, atuserids [
 	}
 	if len(msg.At.AtMobiles) > 0 {
 		for _, p := range msg.At.AtMobiles {
-			if !strings.Contains(msg.Text.Content, "@"+p) {
-				msg.Text.Content += "@" + p + " "
+			if len(p) > 0 && !strings.Contains(msg.Text.Content, "@"+p) {
+				msg.Text.Content += " @" + p
 			}
 		}
 	}
 	if len(msg.At.AtUserIds) > 0 {
 		for _, p := range msg.At.AtUserIds {
-			if !strings.Contains(msg.Text.Content, "@"+p) {
-				msg.Text.Content += "@" + p + " "
+			if len(p) > 0 && !strings.Contains(msg.Text.Content, "@"+p) {
+				msg.Text.Content += " @" + p
 			}
 		}
 	}
@@ -192,15 +195,15 @@ func (r *DingTalkRobot) SendMarkdown(title string, text string, atmobiles []stri
 	}
 	if len(msg.At.AtMobiles) > 0 {
 		for _, p := range msg.At.AtMobiles {
-			if !strings.Contains(msg.Text.Content, "@"+p) {
-				msg.Text.Content += "@" + p + " "
+			if len(p) > 0 && !strings.Contains(msg.Text.Content, "@"+p) {
+				msg.Text.Content += " @" + p
 			}
 		}
 	}
 	if len(msg.At.AtUserIds) > 0 {
 		for _, p := range msg.At.AtUserIds {
-			if !strings.Contains(msg.Text.Content, "@"+p) {
-				msg.Text.Content += "@" + p + " "
+			if len(p) > 0 && !strings.Contains(msg.Text.Content, "@"+p) {
+				msg.Text.Content += " @" + p
 			}
 		}
 	}
