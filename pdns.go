@@ -49,15 +49,15 @@ type RRSets struct {
 }
 
 /*
-{
-  "type": "Server",
-  "id": "localhost",
-  "url": "/api/v1/servers/localhost",
-  "daemon_type": "recursor",
-  "version": "4.1.0",
-  "config_url": "/api/v1/servers/localhost/config{/config_setting}",
-  "zones_url": "/api/v1/servers/localhost/zones{/zone}",
-}
+	{
+	  "type": "Server",
+	  "id": "localhost",
+	  "url": "/api/v1/servers/localhost",
+	  "daemon_type": "recursor",
+	  "version": "4.1.0",
+	  "config_url": "/api/v1/servers/localhost/config{/config_setting}",
+	  "zones_url": "/api/v1/servers/localhost/zones{/zone}",
+	}
 */
 type Server struct {
 	Type       string `json:"type"`
@@ -111,6 +111,28 @@ func (pdns *PDNS) Del(zone, hostname, typ string) (err error) {
 	return
 
 }
+func (pdns *PDNS) Get(zone, hostname string) (rrset *RRSet, err error) {
+
+	rsp, err := pdns.Api(PATHLocalZones+"/"+zone, "GET", "")
+	if err != nil {
+		return
+	}
+	//println(string(rsp))
+	var z = &Zone{}
+	err = json.Unmarshal(rsp, z)
+	if err != nil {
+		return
+	}
+	rrsets := z.RRSets
+	for _, r := range rrsets {
+		if r.Name == hostname+"."+zone+"." {
+			rrset = &r
+			return
+		}
+	}
+	return
+}
+
 func (pdns *PDNS) GetAllRR(zone string) (rrsets []RRSet, err error) {
 
 	rsp, err := pdns.Api(PATHLocalZones+"/"+zone, "GET", "")
