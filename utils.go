@@ -21,7 +21,7 @@ import (
 	"github.com/goinggo/mapstructure"
 	"github.com/google/uuid"
 	"github.com/json-iterator/go"
-	"github.com/orcaman/concurrent-map"
+	"github.com/orcaman/concurrent-map/v2"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
@@ -29,8 +29,8 @@ import (
 var Json = jsoniter.ConfigCompatibleWithStandardLibrary
 var json = Json
 
-func NewCMap() cmap.ConcurrentMap {
-	return cmap.New()
+func NewCMap[v any]() cmap.ConcurrentMap[v] {
+	return cmap.New[v]()
 }
 func MapToStruct(v interface{}) (err error) {
 	mapInstance := make(map[string]interface{})
