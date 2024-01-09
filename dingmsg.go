@@ -122,7 +122,16 @@ func NewDingTalkRobot(token, secret, apiurl string) (r *DingTalkRobot, err error
 
 	return
 }
+func (r *DingTalkRobot) SendRaw(content []byte) (err error) {
+	msg := DingMSG{}
+	err = json.Unmarshal(content, &msg)
+	if err != nil {
+		return
+	}
 
+	r.ChanSend <- msg
+	return
+}
 func (r *DingTalkRobot) SendText(content string, atmobiles []string, atuserids []string, isatall bool) {
 	/*
 		发送文本信息
